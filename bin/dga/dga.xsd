@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="DGA">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="s" minOccurs="1" maxOccurs="unbounded" type="Sentence" />
+      </xs:sequence>
+      <xs:attribute name="language" type="xs:string" use="optional"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:complexType name="Sentence">
+  	<xs:sequence maxOccurs="unbounded" minOccurs="1">
+  		<xs:element name="tok" type="Token" />
+  	</xs:sequence>
+    <xs:attribute name="id" type="xs:string" />
+  </xs:complexType>
+
+  <xs:complexType name="Token">
+   	<xs:all>
+   		<xs:element name="orth" type="xs:string" minOccurs="1">
+   			<xs:annotation>
+   				<xs:documentation>Form of token</xs:documentation>
+   			</xs:annotation></xs:element>
+   		<xs:element name="lemma" type="xs:string" minOccurs="0" />
+   		<xs:element name="pos" type="xs:string" minOccurs="0" />
+   		<xs:element name="cpos" type="xs:string" minOccurs="0" >
+   			<xs:annotation>
+   				<xs:documentation>Coarse grain POS</xs:documentation>
+   			</xs:annotation></xs:element>
+   		<xs:element name="gender" type="xs:string" minOccurs="0" />
+   		<xs:element name="number" type="xs:string" minOccurs="0" />
+   		<xs:element name="person" type="xs:string" minOccurs="0" />
+   		<xs:element name="case" type="xs:string" minOccurs="0" />
+		<xs:element name="morph" type="xs:string" minOccurs="0" >
+			<xs:annotation>
+				<xs:documentation>Morphological features</xs:documentation>
+			</xs:annotation></xs:element>
+		<xs:element name="feats" type="xs:string" minOccurs="0" />
+   		<xs:element name="dep" minOccurs="0">
+   			<xs:complexType>
+   				<xs:attribute name="head" type="xs:string"
+   					use="required" />
+   				<xs:attribute name="type" type="xs:string"></xs:attribute>
+   			</xs:complexType>
+   		</xs:element>
+   		<xs:element name="syn" minOccurs="0">
+                <xs:annotation>
+                	<xs:documentation>For backward compatibility</xs:documentation>
+                </xs:annotation>
+                <xs:complexType>
+                <xs:sequence>
+   					<xs:element name="reltype" type="xs:string" />
+   				</xs:sequence>
+   				<xs:attribute name="head" type="xs:string"
+   					use="required" />
+   			</xs:complexType>
+   		</xs:element>
+   		<xs:element name="extra" minOccurs="0" >
+   			<xs:complexType>
+   				<xs:sequence>
+   					<xs:any maxOccurs="unbounded" processContents="lax" />
+   				</xs:sequence>
+   			</xs:complexType>
+   		</xs:element>
+   	</xs:all>
+   	<xs:attribute name="id" type="xs:string" use="required"/>
+  </xs:complexType>
+
+</xs:schema>

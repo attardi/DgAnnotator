@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+   <properties>
+   <comment>Configuration for Universal Dependencies</comment>
+   <entry key="tagger">http://medialab.di.unipi.it/cgi-bin/tagger?</entry>
+   <entry key="language">ud</entry>
+
+<entry key="corpus">Universal Dependencies</entry>
+
+<!-- Dependency Relations -->
+<entry key="deprels">
+acl|clausal modifier of noun
+advcl|adverbial clause modifier
+advmod|adverbial modifier
+amod|adjectival modifier
+appos|appositional modifier
+aux|auxiliary
+auxpass|passive auxiliary
+case|case marking
+cc|coordinating conjunction
+ccomp|clausal complement
+compound|compound
+conj|conjunct
+cop|copula
+csubj|clausal subject
+csubjpass|clausal passive subject
+dep|unspecified dependency
+det|determiner
+discourse|discourse element
+dislocated|dislocated elements
+dobj|direct object
+expl|expletive
+foreign|foreign words
+goeswith|goes with
+iobj|indirect object
+list|list
+mark|marker
+mwe|multi-word expression
+name|name
+neg|negation modifier
+nmod|nominal modifier
+nsubj|nominal subject
+nsubjpass|passive nominal subject
+nummod|numeric modifier
+parataxis|parataxis
+punct|punctuation
+remnant|remnant in ellipsis
+reparandum|overridden disfluency
+root|root
+vocative|vocative
+xcomp|open clausal complement
+</entry>
+
+<!-- POS Tags -->
+<entry key="pos">ADJ|adjective
+ADP|adposition
+ADV|adverb
+AUX|auxiliary verb
+CONJ|coordinating conjunction
+DET|determiner
+INTJ|interjection
+NOUN|noun
+NUM|numeral
+PART|particle
+PRON|pronoun
+PROPN|proper noun
+PUNCT|punctuation
+SCONJ|subordinating conjunction
+SYM|symbol
+VERB|verb
+X|other
+</entry>
+</properties>

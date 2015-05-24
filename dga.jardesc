@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="WINDOWS-1252" standalone="no"?>
+<jardesc>
+    <jar path="DGAnnotator/dga.jar"/>
+    <options buildIfNeeded="true" compress="false" descriptionLocation="/DGAnnotator/dga.jardesc" exportErrors="false" exportWarnings="true" includeDirectoryEntries="true" overwrite="true" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
+    <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
+    <selectedProjects/>
+    <manifest generateManifest="false" mainClassHandleIdentifier="=DGAnnotator/src&lt;dga{DGA.java[DGA" manifestLocation="/DGAnnotator/MANIFEST" manifestVersion="1.0" reuseManifest="true" saveManifest="true" usesManifest="true">
+        <sealing sealJar="false">
+            <packagesToSeal/>
+            <packagesToUnSeal/>
+        </sealing>
+    </manifest>
+    <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
+        <javaElement handleIdentifier="=DGAnnotator/src"/>
+        <folder path="/DGAnnotator/Doc"/>
+    </selectedElements>
+</jardesc>
