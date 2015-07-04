@@ -6,6 +6,7 @@ package dga;
 import java.awt.*;
 import java.io.*;
 import java.net.URL;
+//import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.util.*;
 
@@ -17,10 +18,10 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JMenu;
 import javax.swing.JTabbedPane;
-
 import javax.swing.JOptionPane;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
+
 import java.awt.BorderLayout;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
@@ -31,27 +32,27 @@ public class DGA extends JFrame implements HyperlinkListener {
 
   private static final long serialVersionUID    = 1L;
 
-  private JPanel	    jContentPane	= null;
-  private JMenuBar	  menuBar	     = null;
-  private JMenu	     fileMenu	    = null;
-  private JMenuItem	 openMenuItem	= null;
-  private JMenuItem	 saveMenuItem	= null;
-  private JMenuItem	 appendToMenuItem    = null;
-  private JMenuItem	 compareWithMenuItem = null;
-  private JMenuItem	 exitMenuItem	= null;
-  private JMenu	     helpMenu	    = null;
-  private JMenuItem	 helpMenuItem	= null;
-  private JMenu	     configMenu	  = null;
-  private JToolBar	  toolBar	     = null;
+  private JPanel	jContentPane	= null;
+  private JMenuBar	menuBar	     = null;
+  private JMenu		fileMenu	    = null;
+  private JMenuItem	openMenuItem	= null;
+  private JMenuItem	saveMenuItem	= null;
+  private JMenuItem	appendToMenuItem    = null;
+  private JMenuItem	compareWithMenuItem = null;
+  private JMenuItem	exitMenuItem	    = null;
+  private JMenu	     	helpMenu	    = null;
+  private JMenuItem	helpMenuItem	    = null;
+  private JMenu	     	configMenu	    = null;
+  private JToolBar	toolBar		    = null;
 
-  private JButton	   openAction	  = null;
-  private JButton	   saveAction	  = null;
-  private JButton	   annotateAction      = null;
+  private JButton	openAction	  = null;
+  private JButton	saveAction	  = null;
+  private JButton	annotateAction      = null;
 
-  protected Annotator       annotator;
-  protected boolean	 hasChanged	  = false;
-  protected CorpusPane      corpusPane;		 // @jve:decl-index=0:visual-constraint="815,68"
-  protected Corpus	  compareCorpus;
+  protected Annotator	annotator;
+  protected boolean	hasChanged	  = false;
+  protected CorpusPane	corpusPane;		 // @jve:decl-index=0:visual-constraint="815,68"
+  protected Corpus	compareCorpus;
   /**
    * Determine whether to show POS or coarse POS.
    */
@@ -188,7 +189,7 @@ public class DGA extends JFrame implements HyperlinkListener {
       configMenu = new JMenu();
       configMenu.setText("Configure");
       configMenu.setMnemonic(java.awt.event.KeyEvent.VK_C);
-      configMenu.add(getLanguageMenu());
+      configMenu.add(getCorpusMenu());
       configMenu.add(getPosMenuItem());
     }
     return configMenu;
@@ -290,7 +291,8 @@ public class DGA extends JFrame implements HyperlinkListener {
 	CorpusPane cp;
 	if (selected.getPath().endsWith(".xml")
 	    || selected.getPath().endsWith(".tab")
-	    || selected.getPath().endsWith(".conll")) {
+	    || selected.getPath().endsWith(".conll")
+	    || selected.getPath().endsWith(".conllu")) {
 	  cp = open(selected);
 	  compareWithMenuItem.setEnabled(true);
 	} else {
@@ -362,7 +364,8 @@ public class DGA extends JFrame implements HyperlinkListener {
       try {
 	if (selected.getPath().endsWith(".xml")
 	    || selected.getPath().endsWith(".tab")
-	    || selected.getPath().endsWith(".conll")) {
+	    || selected.getPath().endsWith(".conll")
+	    || selected.getPath().endsWith(".conllu")) {
 	  compareCorpus = new Corpus(selected);
 	  // check that corpus contains same sentences
 	  Corpus corpus = corpusPane.corpus;
@@ -441,7 +444,7 @@ public class DGA extends JFrame implements HyperlinkListener {
 
   private JButton     zoomAction   = null;
 
-  private JMenu       languageMenu = null;
+  private JMenu       corpusMenu   = null;
 
   /**
    * This method initializes helpMenuItem
@@ -453,6 +456,7 @@ public class DGA extends JFrame implements HyperlinkListener {
       helpMenuItem = new JMenuItem();
       helpMenuItem.setText("Manual");
       helpMenuItem.setMnemonic(java.awt.event.KeyEvent.VK_M);
+      com.Ostermiller.util.Browser.init();
       helpMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	public void actionPerformed(java.awt.event.ActionEvent e) {
 	  try {
@@ -520,8 +524,8 @@ public class DGA extends JFrame implements HyperlinkListener {
       SentenceView sv = corpusPane.getSentenceView(id);
       sv.viewPOS = viewPOS;
       annotator.sentence(sv);
-      if (compareCorpus != null) annotator.compareWith(compareCorpus
-	  .getSentence(id));
+      if (compareCorpus != null)
+	annotator.compareWith(compareCorpus.getSentence(id));
       annotateAction.setEnabled(false);
       saveImageMenuItem.setEnabled(true);
       saveImageAction.setEnabled(true);
@@ -685,16 +689,21 @@ public class DGA extends JFrame implements HyperlinkListener {
   }
 
   @SuppressWarnings("serial")
-  class LocaleListener extends AbstractAction {
-    Locale locale;
+  /**
+   * Action when a Corpus is selected
+   * @author Attardi
+   *
+   */
+  class CorpusListener extends AbstractAction {
+    String corpus;
 
-    LocaleListener(String l) {
-      locale = new Locale(l);
+    CorpusListener(String corpus) {
+      this.corpus = corpus;
     }
 
     public void actionPerformed(java.awt.event.ActionEvent e) {
-      corpusPane.setLocale(locale);
-      annotator.setLocale(locale);
+      corpusPane.setScheme(corpus);
+      annotator.setScheme(corpus);
     }
   }
 
@@ -710,52 +719,64 @@ public class DGA extends JFrame implements HyperlinkListener {
     private String re;
   }
 
-  // Get list of pairs (corpus, language) from resource files
-  private Vector<String[]> getLanguages() {
-    // resources should be in directory "dga" relative to classpath
-    String re = "DGA_.*\\.xml";
-    URL url = getClass().getResource("DGA.xml");
-    Vector<String[]> pairs = new Vector<String[]>();
-    if (url == null) return pairs;
-    String path = url.getPath();
+  // Descriptions of corpora:
+  private PatternFilter filter = new PatternFilter("DGA_.*\\.xml");
+  
+  /**
+   * Get list of pairs (corpus, language) from all resource files
+   * @return
+   */
+  private Vector<String[]> getCorpora() {
+    File dir = null;
     try {
-      path = URLDecoder.decode(path, "UTF-8");
-    } catch (UnsupportedEncodingException e) {
+      URL url = getClass().getResource("DGA.xml");
+      String path = url.getPath();
+      if (url.getProtocol().equals("jar")) {
+	// A JAR path, strip "file:" and "!/dga/DGA.xml"
+	path = path.substring(5, path.indexOf('!'));
+	path = URLDecoder.decode(path, "UTF-8");	// e.g. spaces
+	// remove extra slash in front of Windows path:
+	dir = new File(path).getCanonicalFile();
+        // resources should be in directory "dga" relative to jar file
+	dir = dir.toPath().resolveSibling("dga").toFile();
+      } else {
+	path = URLDecoder.decode(path, "UTF-8");
+	dir = new File(path).getParentFile();
+      }
+    } catch (Exception e) {
     }
-    File dir = new File(path);
-    dir = dir.getParentFile();
-    String[] list = dir.list(new PatternFilter(re));
-    if (list == null) return pairs;
-    for (String f : list) {
+    Vector<String[]> pairs = new Vector<String[]>();
+    for (String f : dir.list(filter)) {
       try {
-	ResourceBundle bundle = new XMLResourceBundleControl.XMLResourceBundle(
-	    new FileInputStream(new File(dir, f)));
+	FileInputStream fis = new FileInputStream(new File(dir, f));
+	ResourceBundle bundle = new XMLResourceBundleControl.XMLResourceBundle(fis);
 	pairs.add(new String[] { bundle.getString("corpus"),
 	    bundle.getString("language") });
       } catch (IOException e) {
+	System.err.println("Failed loading: " + f);
       }
     }
     return pairs;
   }
 
   /**
-   * This method initializes languageMenu
+   * This method initializes corpusMenu
    * 
    * @return javax.swing.JMenu
    */
-  private JMenu getLanguageMenu() {
-    if (languageMenu == null) {
-      Vector<String[]> languages = getLanguages();
-      languageMenu = new JMenu();
-      languageMenu.setText("Language..");
-      for (String[] pair : languages) {
+  private JMenu getCorpusMenu() {
+    if (corpusMenu == null) {
+      Vector<String[]> corpora = getCorpora();
+      corpusMenu = new JMenu();
+      corpusMenu.setText("Corpus...");
+      for (String[] pair : corpora) {
 	JMenuItem item = new JMenuItem();
 	item.setText(pair[0]);
-	item.addActionListener(new LocaleListener(pair[1]));
-	languageMenu.add(item);
+	item.addActionListener(new CorpusListener(pair[1]));
+	corpusMenu.add(item);
       }
     }
-    return languageMenu;
+    return corpusMenu;
   }
 
   private JButton	     undoAction = null;
@@ -1007,7 +1028,7 @@ public class DGA extends JFrame implements HyperlinkListener {
     try {
       UIManager.setLookAndFeel(laf);
     } catch (Exception exception) {
-      System.out.println("Can't set " + laf);
+      System.err.println("Can't set " + laf);
     }
     DGA dga = new DGA(args);
     dga.setVisible(true);
@@ -1035,9 +1056,9 @@ public class DGA extends JFrame implements HyperlinkListener {
   private void initialize() {
     this.setSize(new java.awt.Dimension(800, 600));
     this.setLocationRelativeTo(null);
+    this.setJMenuBar(getJMenuBar());
     this.setContentPane(getJContentPane());
     this.setTitle("DG Annotator");
-    this.setJMenuBar(getJMenuBar());
     this.addWindowListener(new java.awt.event.WindowAdapter() {
       public void windowClosing(java.awt.event.WindowEvent e) {
 	doExit();
@@ -1097,12 +1118,12 @@ public class DGA extends JFrame implements HyperlinkListener {
       int i = s.lastIndexOf('.');
       if (i > 0 && i < s.length() - 1) s = s.substring(i + 1);
       return s != null
-	  && (s.equalsIgnoreCase("xml") || s.equalsIgnoreCase("tab") || s
-	      .equalsIgnoreCase("conll"));
+	  && (s.equalsIgnoreCase("xml") || s.equalsIgnoreCase("tsv") ||
+	      s.equalsIgnoreCase("conll") || s.equalsIgnoreCase("conllu"));
     }
 
     public String getDescription() {
-      return "XML, CoNLL Tab file";
+      return "XML, CoNLL file";
     }
   }
 

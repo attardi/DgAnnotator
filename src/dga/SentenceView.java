@@ -4,8 +4,8 @@
 package dga;
 
 import java.awt.geom.*;
+
 import javax.swing.undo.UndoManager;
-import java.util.Locale;
 
 /**
  * This class maintains the status of a Sentence being edited.
@@ -17,18 +17,21 @@ public class SentenceView {
   Sentence sentence;
   protected UndoManager undoManager;
   protected AffineTransform transform;
-  protected Locale locale;
+  /**
+   * The corpus scheme
+   */
+  protected String scheme;
   /**
    * Determine whether to show POS or coarse POS.
    */
   public boolean viewPOS = true;
   
-  public SentenceView(Sentence sentence, Locale locale) {
+  public SentenceView(Sentence sentence, String scheme) {
     this.sentence = sentence;
-    this.locale = locale == null ? Locale.getDefault() : locale;
+    this.scheme = scheme;
     undoManager = new UndoManager();
     transform = new AffineTransform();
-    transform.setToIdentity();
+    //transform.setToIdentity();
   }
   
 }

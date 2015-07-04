@@ -5,14 +5,24 @@ package dga;
 
 import java.io.*;
 import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.Vector;
 import java.util.regex.*;
+import java.text.ParseException;
 
 import javax.xml.parsers.*;
 import javax.xml.validation.*;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.w3c.dom.*;
 
+/**
+ * A collection of sentences with a common language and annotation scheme.
+ * 
+ * @author Attardi
+ *
+ */
 public class Corpus {
 
   DocumentBuilderFactory docFactory;
@@ -57,6 +67,11 @@ public class Corpus {
   }
 
   /**
+   * Annotation scheme.
+   */
+  public String scheme = "UD";
+  
+  /**
    * Read corpus file.
    * 
    * @param file
@@ -76,24 +91,74 @@ public class Corpus {
 	docFactory.setSchema(schema);
       }
       DocumentBuilder parser = docFactory.newDocumentBuilder();
-      // DocumentBuilder interns XML names, so we can use == for comparisons
-      // strings
+      // DocumentBuilder interns XML names, so we can use == for string comparisons
       Document dom = parser.parse(file);
       return getSentences(dom);
-    } else if (file.getPath().endsWith(".conllu")) return parseUD(file);
-    else return parseTab(file);
+    } else if (file.getPath().endsWith(".txt"))
+      return parseText(file);
+    return parseUD(file);	// subsumes parseConll
+  }
+  
+  /**
+   * Read corpus file in text format and submit it for parsing to the Web Service associated
+   * to the currently selected Corpus type.
+   * 
+   * @param file
+   * @return parsed sentences from corpus
+   * @throws Exception
+   */
+  public Vector<Sentence> parseText(File file) throws Exception {
+    FileInputStream fis = new FileInputStream(file);
+    BufferedReader in = new BufferedReader(new InputStreamReader(fis, "UTF-8"));
+    String line;
+    StringBuilder text = new StringBuilder();
+    while ((line = in.readLine()) != null)
+      text.append(line);
+    in.close();
+    return parseText(text.toString());
+  }
+
+  /**
+   * Invoke parsing service to parse a text.
+   * 
+   * @param text the text to be parsed.
+   * @return a vector of Sentence.
+   */
+  Vector<Sentence> parseText(String text) throws Exception {
+    ResourceBundle props;
+    try {
+      props = ResourceBundle.getBundle("dga.DGA_" + scheme);
+    } catch (Exception e) {
+      props = ResourceBundle.getBundle("dga.DGA");
+    }
+    String tagger = props.getString("tagger");
+    String authProvider = "DgAnnotator";
+    String authToken = ""; //props.getString("token");
+    String email = "";
+    Service service = new Service(tagger, authProvider, authToken, email);
+    String[] params = {"service", "parser",
+	"format", "plain",
+	"text", text};
+    // submit request
+    CloseableHttpResponse response = service.post(params);
+    if (response.getStatusLine().getStatusCode() == 200) {
+      // read response
+      HttpEntity entity = response.getEntity();
+      InputStream is = entity.getContent();
+      Vector<Sentence> sentences = parseConll(is);
+      response.close();
+      return sentences;
+    }
+    return null;
   }
 
   // pattern for analyzing token line in CoNLL-X format:
   // id form lemma cpostag postag feats head deprel phead pdeprel
-  static Pattern reCoNLL_X   = Pattern
-				 .compile("(\\d+?)\t(.+?)\t(.+?)\t(.+?)\t(.+?)\t(.+?)\t(\\d+?)\t(.+?)\t(.+?)\t(.*)");
+  static Pattern reCoNLL_X   = Pattern.compile("(\\d+?)\t(.+?)\t(.+?)\t(.+?)\t(.+?)\t(.+?)\t(\\d+?)\t(.+?)\t(.+?)\t(.*)");
   // id form lemma gpos ppos splitForm splitLemma pposs head deprel pred arg+
-  static Pattern reCoNLL_XII = Pattern
-				 .compile("(\\d+?)\t(.+?)\t(.+?)\t(.+?)\t(.+?)\t(.+?)\t(.+?)\t(.+?)\t(\\d+?)\t(.+?)\t(.+?)\t(.*)");
+  static Pattern reCoNLL_XII = Pattern.compile("(\\d+?)\t(.+?)\t(.+?)\t(.+?)\t(.+?)\t(.+?)\t(.+?)\t(.+?)\t(\\d+?)\t(.+?)\t(.+?)\t(.*)");
   // Optional doc element
-  static Pattern reDoc       = Pattern
-				 .compile("</?doc((\\s+?)id=(['\"])(.*?)\\3(\\s+?)url=(['\"])(.*?)\\6)?(\\s*?)>");
+  static Pattern reDoc       = Pattern.compile("</?doc((\\s+?)id=(['\"])(.*?)\\3(\\s+?)url=(['\"])(.*?)\\6)?(\\s*?)>");
 
   /**
    * Read corpus file in CoNLL tab separated format: one token per line,
@@ -104,9 +169,13 @@ public class Corpus {
    * @return parsed sentences from corpus
    * @throws Exception
    */
-  public Vector<Sentence> parseTab(File file) throws Exception {
+  public Vector<Sentence> parseConll(File file) throws Exception {
     FileInputStream fis = new FileInputStream(file);
-    BufferedReader in = new BufferedReader(new InputStreamReader(fis, "UTF-8"));
+    return parseConll(fis);
+  }
+  
+  public Vector<Sentence> parseConll(InputStream is) throws Exception {
+    BufferedReader in = new BufferedReader(new InputStreamReader(is, "UTF-8"));
     Vector<Sentence> sentences = new Vector<Sentence>();
     Vector<String> words = new Vector<String>();
     Vector<String> lemmas = new Vector<String>();
@@ -183,8 +252,7 @@ public class Corpus {
   }
 
   // id form lemma cpostag postag feats head deprel deps misc
-  static Pattern reCoNLL_U    = Pattern
-				  .compile("(\\d+?)\t(.+?)\t(.+?)\t(.+?)\t(.+?)\t(.+?)\t(\\d+?)\t(.+?)\t(.+?)\t(.*)");
+  static Pattern reCoNLL_U    = Pattern.compile("(\\d+?)\t(.+?)\t(.+?)\t(.+?)\t(.+?)\t(.+?)\t(\\d+?)\t(.+?)\t(.+?)\t(.*)");
   static Pattern reCoNLL_U_MW = Pattern.compile("(\\d+?)-(\\d+?)\t(.*)");
 
   /**
@@ -200,7 +268,11 @@ public class Corpus {
    */
   public Vector<Sentence> parseUD(File file) throws Exception {
     FileInputStream fis = new FileInputStream(file);
-    BufferedReader in = new BufferedReader(new InputStreamReader(fis, "UTF-8"));
+    return parseUD(fis);
+  }
+
+  public Vector<Sentence> parseUD(InputStream is) throws Exception {
+    BufferedReader in = new BufferedReader(new InputStreamReader(is, "UTF-8"));
     Vector<Sentence> sentences = new Vector<Sentence>();
     Vector<String> words = new Vector<String>();
     Vector<String> lemmas = new Vector<String>();
@@ -217,8 +289,10 @@ public class Corpus {
     Document document = builder.newDocument();
     Element sent = document.createElement("sent"); ///< the current sentence
     String line;
-    int count = 0;
+    int count = 0;	// sentences
+    int ln = 0;		// line number
     while ((line = in.readLine()) != null) {
+      ln++;
       if (line.isEmpty()) {
 	String sid = Integer.toString(count++);
 	sentences.add(new Sentence(sid, words, lemmas, ctags, tags, morphos,
@@ -251,7 +325,8 @@ public class Corpus {
 	continue;
       }
       m = reCoNLL_U.matcher(line);
-      if (!m.matches()) continue;
+      if (!m.matches())
+	throw new ParseException("malformed input file at line: " + ln, ln);
       int id = Integer.parseInt(m.group(1));
       if (id != words.size() + 1) continue;
       // add orth

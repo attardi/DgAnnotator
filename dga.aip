@@ -1,18 +1,27 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<DOCUMENT Type="Advanced Installer" CreateVersion="3.9" version="9.8" Modules="simple" RootPath="." Language="en" Id="{64B132C9-E803-495B-BACC-14E17D0C2B3F}">
+<DOCUMENT Type="Advanced Installer" CreateVersion="3.9" version="12.2" Modules="simple" RootPath="." Language="en" Id="{64B132C9-E803-495B-BACC-14E17D0C2B3F}">
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiValidationComponent">
+    <ROW Table="File" Column="Sequence" MinValue="1" MaxValue="2147483647" Description="Sequence with respect to the media images; order must track cabinet order." Options="0" ColumnType="3" ColumnIndex="7" ColumnSize="4" MsiKey="File#Sequence"/>
+    <ROW Table="Media" Column="LastSequence" MinValue="0" MaxValue="2147483647" Description="File sequence number for the last file for this media." Options="0" ColumnType="3" ColumnIndex="1" ColumnSize="4" MsiKey="Media#LastSequence"/>
+  </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiPropsComponent">
+    <ROW Property="AI_BITMAP_DISPLAY_MODE" Value="0"/>
     <ROW Property="AI_MINJREVERSION" MultiBuildValue="DefaultBuild:1.6" ValueLocId="-"/>
     <ROW Property="AI_ThemeStyle" Value="default" MultiBuildValue="DefaultBuild:classic" MsiKey="AI_ThemeStyle"/>
     <ROW Property="ALLUSERS" Value="2"/>
     <ROW Property="ARPCOMMENTS" Value="This installer database contains the logic and data required to install &lt;product name&gt;." ValueLocId="*"/>
+    <ROW Property="ARPPRODUCTICON" Value="Dga.exe" Type="8"/>
     <ROW Property="ARPURLINFOABOUT" Value="http://medialab.di.unipi.it/Project/QA/Parser/DgAnnotator/"/>
     <ROW Property="Manufacturer" Value="Giuseppe Attardi" ValueLocId="*"/>
     <ROW Property="ProductCode" Value="1033:{E383ECD1-394D-4432-BB67-B3F28A4D8A2F} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="DgAnnotator" ValueLocId="*"/>
-    <ROW Property="ProductVersion" Value="1.1.2" Type="32"/>
+    <ROW Property="ProductVersion" Value="1.1.3" Type="32"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
     <ROW Property="UpgradeCode" Value="{CB1FA09B-EA55-40BF-8C40-CFA7F1677129}"/>
+    <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNT40" MultiBuildValue="DefaultBuild:Windows NT 4.0" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNT40Display" MultiBuildValue="DefaultBuild:Windows NT 4.0" ValueLocId="-"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiDirsComponent">
     <ROW Directory="APPDIR" Directory_Parent="TARGETDIR" DefaultDir="APPDIR:." IsPseudoRoot="1"/>
@@ -20,6 +29,7 @@
     <ROW Directory="SHORTCUTDIR" Directory_Parent="TARGETDIR" DefaultDir="SHORTC~1|SHORTCUTDIR" IsPseudoRoot="1"/>
     <ROW Directory="TARGETDIR" DefaultDir="SourceDir"/>
     <ROW Directory="dga_DIR" Directory_Parent="APPDIR" DefaultDir="dga"/>
+    <ROW Directory="lib_Dir" Directory_Parent="APPDIR" DefaultDir="lib"/>
     <ROW Directory="treehtml_DIR" Directory_Parent="Doc_DIR" DefaultDir="treehtml"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCompsComponent">
@@ -28,9 +38,10 @@
     <ROW Component="a1.jpg" ComponentId="{E38C12EA-EE4E-4F59-862B-D49094502CEE}" Directory_="Doc_DIR" Attributes="0" KeyPath="a1.jpg" Type="0"/>
     <ROW Component="branch_i.gif" ComponentId="{EEFD6CE5-1A4F-4467-AD9E-7618D7299C67}" Directory_="treehtml_DIR" Attributes="0" KeyPath="branch_i.gif" Type="0"/>
     <ROW Component="classpath" ComponentId="{2667F29C-70C9-41D9-B5BB-94265CAFAE5A}" Directory_="APPDIR" Attributes="0" KeyPath="DGA.ini" Type="0"/>
+    <ROW Component="commonscodec1.9.jar" ComponentId="{FA93E08D-C549-4D08-B8E4-B4DB78653673}" Directory_="lib_Dir" Attributes="0" KeyPath="httpclient4.5.jar" Type="0"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
-    <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Directory_="APPDIR" Attributes="0" Components="DGA.exe_1 DGA_sp.xml a1.jpg branch_i.gif classpath"/>
+    <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Directory_="APPDIR" Attributes="0" Components="DGA.exe_1 DGA_sp.xml a1.jpg branch_i.gif classpath commonscodec1.9.jar"/>
     <ATTRIBUTE name="CurrentFeature" value="MainFeature"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
@@ -38,20 +49,20 @@
     <ROW File="DGA.exe_1" Component_="DGA.exe_1" FileName="DGA.exe" Attributes="0" SourcePath="DGA.exe" SelfReg="false" NextFile="dga.jar"/>
     <ROW File="DGA.ini" Component_="classpath" FileName="DGA.ini" Attributes="0" SourcePath="DGA.ini" SelfReg="false" NextFile="screenshot.png"/>
     <ROW File="DGA.xml" Component_="DGA_sp.xml" FileName="DGA.xml" Attributes="0" SourcePath="src\dga\DGA.xml" SelfReg="false" NextFile="DGA_ca.xml"/>
+    <ROW File="DGA_UD.xml" Component_="DGA_sp.xml" FileName="DGA_UD.xml" Attributes="0" SourcePath="src\dga\DGA_UD.xml" SelfReg="false" NextFile="httpclient4.5.jar"/>
     <ROW File="DGA_ca.xml" Component_="DGA_sp.xml" FileName="DGA_ca.xml" Attributes="0" SourcePath="src\dga\DGA_ca.xml" SelfReg="false" NextFile="DGA_cn.xml"/>
     <ROW File="DGA_cn.xml" Component_="DGA_sp.xml" FileName="DGA_cn.xml" Attributes="0" SourcePath="src\dga\DGA_cn.xml" SelfReg="false" NextFile="DGA_cz.xml"/>
     <ROW File="DGA_cz.xml" Component_="DGA_sp.xml" FileName="DGA_cz.xml" Attributes="0" SourcePath="src\dga\DGA_cz.xml" SelfReg="false" NextFile="DGA_de.xml"/>
     <ROW File="DGA_de.xml" Component_="DGA_sp.xml" FileName="DGA_de.xml" Attributes="0" SourcePath="src\dga\DGA_de.xml" SelfReg="false" NextFile="DGA_en.xml"/>
     <ROW File="DGA_en.xml" Component_="DGA_sp.xml" FileName="DGA_en.xml" Attributes="0" SourcePath="src\dga\DGA_en.xml" SelfReg="false" NextFile="DGA_isst.xml"/>
     <ROW File="DGA_en08.xml" Component_="DGA_sp.xml" FileName="DGA_en08.xml" Attributes="0" SourcePath="src\dga\DGA_en08.xml" SelfReg="false" NextFile="DGA_fr.xml"/>
-    <ROW File="DGA_fr.xml" Component_="DGA_sp.xml" FileName="DGA_fr.xml" Attributes="0" SourcePath="src\dga\DGA_fr.xml" SelfReg="false" NextFile="DGA_ud.xml"/>
+    <ROW File="DGA_fr.xml" Component_="DGA_sp.xml" FileName="DGA_fr.xml" Attributes="0" SourcePath="src\dga\DGA_fr.xml" SelfReg="false" NextFile="DGA_UD.xml"/>
     <ROW File="DGA_hi.xml" Component_="DGA_sp.xml" FileName="DGA_hi.xml" Attributes="0" SourcePath="src\dga\DGA_hi.xml" SelfReg="false" NextFile="DGA_en08.xml"/>
     <ROW File="DGA_isst.xml" Component_="DGA_sp.xml" FileName="DGA_isst.xml" Attributes="0" SourcePath="src\dga\DGA_isst.xml" SelfReg="false" NextFile="DGA_it.xml"/>
     <ROW File="DGA_it.xml" Component_="DGA_sp.xml" FileName="DGA_it.xml" Attributes="0" SourcePath="src\dga\DGA_it.xml" SelfReg="false" NextFile="DGA_pt.xml"/>
     <ROW File="DGA_pt.xml" Component_="DGA_sp.xml" FileName="DGA_pt.xml" Attributes="0" SourcePath="src\dga\DGA_pt.xml" SelfReg="false" NextFile="DGA_se.xml"/>
     <ROW File="DGA_se.xml" Component_="DGA_sp.xml" FileName="DGA_se.xml" Attributes="0" SourcePath="src\dga\DGA_se.xml" SelfReg="false" NextFile="PosTag.jpg"/>
     <ROW File="DGA_sp.xml" Component_="DGA_sp.xml" FileName="DGA_sp.xml" Attributes="0" SourcePath="src\dga\DGA_sp.xml" SelfReg="false" NextFile="DGA.xml"/>
-    <ROW File="DGA_ud.xml" Component_="DGA_sp.xml" FileName="DGA_ud.xml" Attributes="0" SourcePath="src\dga\DGA_ud.xml" SelfReg="false"/>
     <ROW File="PosTag.jpg" Component_="a1.jpg" FileName="PosTag.jpg" Attributes="0" SourcePath="Doc\PosTag.jpg" SelfReg="false" NextFile="redo.png"/>
     <ROW File="a1.jpg" Component_="a1.jpg" FileName="a1.jpg" Attributes="0" SourcePath="Doc\a1.jpg" SelfReg="false" NextFile="a2.jpg"/>
     <ROW File="a2.jpg" Component_="a1.jpg" FileName="a2.jpg" Attributes="0" SourcePath="Doc\a2.jpg" SelfReg="false" NextFile="a4.jpg"/>
@@ -81,6 +92,9 @@
     <ROW File="fol_open.gif" Component_="branch_i.gif" FileName="fol_open.gif" Attributes="0" SourcePath="Doc\treehtml\fol_open.gif" SelfReg="false" NextFile="fol_userguide.htm"/>
     <ROW File="fol_userguide.htm" Component_="branch_i.gif" FileName="fol_us~1.htm|fol_userguide.htm" Attributes="0" SourcePath="Doc\treehtml\fol_userguide.htm" SelfReg="false" NextFile="icon_10.gif"/>
     <ROW File="functions.htm" Component_="a1.jpg" FileName="functi~1.htm|functions.htm" Attributes="0" SourcePath="Doc\functions.htm" SelfReg="false" NextFile="index.htm"/>
+    <ROW File="httpclient4.5.jar" Component_="commonscodec1.9.jar" FileName="HTTPCL~1.JAR|httpclient-4.5.jar" Attributes="0" SourcePath="lib\httpclient-4.5.jar" SelfReg="false" NextFile="httpcore4.4.1.jar"/>
+    <ROW File="httpcore4.4.1.jar" Component_="commonscodec1.9.jar" FileName="HTTPCO~1.JAR|httpcore-4.4.1.jar" Attributes="0" SourcePath="lib\httpcore-4.4.1.jar" SelfReg="false" NextFile="httpmime4.5.jar"/>
+    <ROW File="httpmime4.5.jar" Component_="commonscodec1.9.jar" FileName="HTTPMI~1.JAR|httpmime-4.5.jar" Attributes="0" SourcePath="lib\httpmime-4.5.jar" SelfReg="false"/>
     <ROW File="icon_10.gif" Component_="branch_i.gif" FileName="icon_10.gif" Attributes="0" SourcePath="Doc\treehtml\icon_10.gif" SelfReg="false" NextFile="minus.gif"/>
     <ROW File="index.htm" Component_="a1.jpg" FileName="index.htm" Attributes="0" SourcePath="Doc\index.htm" SelfReg="false" NextFile="install.htm"/>
     <ROW File="install.htm" Component_="a1.jpg" FileName="install.htm" Attributes="0" SourcePath="Doc\install.htm" SelfReg="false" NextFile="next.gif"/>
@@ -103,7 +117,7 @@
     <ROW File="zoom.gif" Component_="a1.jpg" FileName="zoom.gif" Attributes="0" SourcePath="Doc\zoom.gif" SelfReg="false" NextFile="DGA_hi.xml"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
-    <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="0" PackageFolder="." Languages="en" InstallationType="4"/>
+    <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="0" PackageFolder="." Languages="en" InstallationType="4" CabsLocation="1"/>
     <ATTRIBUTE name="CurrentBuild" value="DefaultBuild"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.DictionaryComponent">
@@ -126,9 +140,6 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiBinaryComponent">
     <ROW Name="aicustact.dll" SourcePath="&lt;AI_CUSTACTS&gt;aicustact.dll"/>
-  </COMPONENT>
-  <COMPONENT cid="caphyon.advinst.msicomp.MsiControlComponent">
-    <ATTRIBUTE name="FixedSizeBitmaps" value="0"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiControlEventComponent">
     <ROW Dialog_="FolderDlg" Control_="Back" Event="NewDialog" Argument="WelcomeDlg" Condition="AI_INSTALL" Ordering="1"/>
@@ -157,16 +168,19 @@
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCustActComponent">
     <ROW Action="AI_DOWNGRADE" Type="19" Target="4010"/>
     <ROW Action="AI_DetectJRE" Type="1" Source="aicustact.dll" Target="RequiredJreExists"/>
+    <ROW Action="AI_DpiContentScale" Type="1" Source="aicustact.dll" Target="DpiContentScale"/>
     <ROW Action="AI_InstallModeCheck" Type="1" Source="aicustact.dll" Target="UpdateInstallMode" WithoutSeq="true"/>
     <ROW Action="AI_PREPARE_UPGRADE" Type="65" Source="aicustact.dll" Target="PrepareUpgrade"/>
     <ROW Action="AI_RESTORE_LOCATION" Type="65" Source="aicustact.dll" Target="RestoreLocation"/>
     <ROW Action="AI_ResolveKnownFolders" Type="1" Source="aicustact.dll" Target="AI_ResolveKnownFolders"/>
-    <ROW Action="AI_ResolveLocalizedCredentials" Type="1" Source="aicustact.dll" Target="GetLocalizedCredentials"/>
     <ROW Action="AI_SHOW_LOG" Type="65" Source="aicustact.dll" Target="LaunchLogFile" WithoutSeq="true"/>
     <ROW Action="AI_STORE_LOCATION" Type="51" Source="ARPINSTALLLOCATION" Target="[APPDIR]"/>
     <ROW Action="SET_APPDIR" Type="307" Source="APPDIR" Target="[ProgramFilesFolder][Manufacturer]\[ProductName]" MultiBuildTarget="DefaultBuild:[ProgramFilesFolder]\[ProductName]"/>
     <ROW Action="SET_SHORTCUTDIR" Type="307" Source="SHORTCUTDIR" Target="[ProgramMenuFolder][ProductName]"/>
     <ROW Action="SET_TARGETDIR_TO_APPDIR" Type="51" Source="TARGETDIR" Target="[APPDIR]"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiIconsComponent">
+    <ROW Name="Dga.exe" SourcePath="Dga.ico" Index="0"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstExSeqComponent">
     <ROW Action="AI_DOWNGRADE" Condition="AI_NEWERPRODUCTFOUND AND (UILevel &lt;&gt; 5)" Sequence="210"/>
@@ -174,20 +188,21 @@
     <ROW Action="AI_STORE_LOCATION" Condition="Not Installed" Sequence="1545"/>
     <ROW Action="AI_PREPARE_UPGRADE" Condition="AI_UPGRADE=&quot;No&quot; AND (Not Installed)" Sequence="1300"/>
     <ROW Action="AI_DetectJRE" Condition="1" Sequence="399" Builds="DefaultBuild"/>
-    <ROW Action="AI_ResolveKnownFolders" Sequence="52"/>
-    <ROW Action="AI_ResolveLocalizedCredentials" Sequence="51"/>
+    <ROW Action="AI_ResolveKnownFolders" Sequence="51"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstallUISequenceComponent">
     <ROW Action="AI_RESTORE_LOCATION" Condition="APPDIR=&quot;&quot;" Sequence="740"/>
     <ROW Action="AI_DetectJRE" Condition="1" Sequence="399" Builds="DefaultBuild"/>
     <ROW Action="AI_ResolveKnownFolders" Sequence="52"/>
-    <ROW Action="AI_ResolveLocalizedCredentials" Sequence="51"/>
+    <ROW Action="AI_DpiContentScale" Sequence="51"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiLaunchConditionsComponent">
+    <ROW Condition="(VersionNT &lt;&gt; 400)" Description="[ProductName] cannot be installed on the following Windows versions: [WindowsTypeNT40Display]" DescriptionLocId="AI.LaunchCondition.NoNT40" IsPredefined="true" Builds="DefaultBuild"/>
     <ROW Condition="AI_JREVERFOUND = 1" Description="[ProductName] cannot be installed on systems with JRE version smaller than [AI_MINJREVERSION]" DescriptionLocId="AI.LaunchCondition.Jre" IsPredefined="true" Builds="DefaultBuild"/>
+    <ROW Condition="VersionNT" Description="[ProductName] cannot be installed on [WindowsType9XDisplay]" DescriptionLocId="AI.LaunchCondition.No9X" IsPredefined="true" Builds="DefaultBuild"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiShortsComponent">
-    <ROW Shortcut="DGA.exe_1" Directory_="SHORTCUTDIR" Name="DGA" Component_="DGA.exe_1" Target="[#DGA.exe_1]" Description="Dependency Graph Annotator" Hotkey="0" IconIndex="0" ShowCmd="1" WkDir="APPDIR"/>
+    <ROW Shortcut="DGA.exe_1" Directory_="SHORTCUTDIR" Name="DGA" Component_="DGA.exe_1" Target="[#DGA.exe_1]" Description="Dependency Graph Annotator" Hotkey="0" Icon_="Dga.exe" IconIndex="0" ShowCmd="1" WkDir="APPDIR"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiThemeComponent">
     <ATTRIBUTE name="UsedTheme" value="classic"/>

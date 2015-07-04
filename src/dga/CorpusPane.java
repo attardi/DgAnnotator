@@ -9,7 +9,6 @@ import java.awt.Insets;
 import java.awt.RenderingHints;
 import java.awt.event.*;
 import java.io.*;
-import java.util.Locale;
 import java.util.regex.*;
 
 import javax.swing.BorderFactory;
@@ -25,6 +24,12 @@ import javax.swing.JTextField;
 import javax.swing.JButton;
 import javax.swing.ImageIcon;
 
+/**
+ * Display the list of sentences for a corpus in a searchable text area.
+ * 
+ * @author Attardi
+ *
+ */
 public class CorpusPane extends JScrollPane {
   
   private JEditorPane textArea = null;
@@ -36,15 +41,10 @@ public class CorpusPane extends JScrollPane {
   Corpus getCorpus() { return corpus; }
   
   /**
-   * Corresponds to the corpus language.
+   * Corresponds to the corpus annotation scheme.
    */
-  public void setLocale(Locale l) {
-    if (!getLocale().equals(l)) {
-      super.setLocale(l);
-      corpus.setLanguage(l.getLanguage());
-      // FIXME: add undo support
-      hasChanged = true;
-    }
+  public void setScheme(String scheme) {
+    corpus.scheme = scheme;
   }
   
   /**
@@ -61,7 +61,6 @@ public class CorpusPane extends JScrollPane {
     super();
     initialize();
     this.corpus = corpus;
-    setLocale(new Locale(corpus.getLanguage()));
     hasChanged = false; // undo change in setLocale()
     textArea.setText(corpus.toHTML());
     textArea.setCaretPosition(0);
@@ -72,9 +71,9 @@ public class CorpusPane extends JScrollPane {
    * reset the visualization after a change to the text.
    */
   public void reset() {
-	  int caret = textArea.getCaretPosition();
-	  textArea.setText(corpus.toHTML());
-	  textArea.setCaretPosition(caret);
+    int caret = textArea.getCaretPosition();
+    textArea.setText(corpus.toHTML());
+    textArea.setCaretPosition(caret);
   }
 
   /**
@@ -160,7 +159,7 @@ public class CorpusPane extends JScrollPane {
   }
   
   public SentenceView getSentenceView(int i) {
-    sentenceView = new SentenceView(corpus.getSentence(i), getLocale());
+    sentenceView = new SentenceView(corpus.getSentence(i), corpus.scheme);
     return sentenceView;
   }
   
@@ -170,9 +169,9 @@ public class CorpusPane extends JScrollPane {
   
   public SentenceView getSelectedSentenceView() {
     String selectedText = textArea.getSelectedText();
-    Sentence sentence = new Sentence(selectedText, getLocale());
+    Sentence sentence = new Sentence(selectedText, corpus.scheme);
     corpus.add(sentence);
-    sentenceView = new SentenceView(sentence, getLocale());
+    sentenceView = new SentenceView(sentence, corpus.scheme);
     return sentenceView;
   }
   

@@ -1,0 +1,4 @@
+To create DGA.exe, the Professional version of Advanced Installer is required.
+
+As an alternative, use the trial version to create a Java Application Project,
+ install it and copy the generated DGA.exe file for use in a Simple Project.

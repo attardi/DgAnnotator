@@ -2,8 +2,8 @@
   <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
    <properties>
    <comment>Configuration for Universal Dependencies</comment>
-   <entry key="tagger">http://medialab.di.unipi.it/cgi-bin/tagger?</entry>
-   <entry key="language">ud</entry>
+   <entry key="tagger">http://tanl.di.unipi.it/en/api</entry>
+   <entry key="language">en</entry>
 
 <entry key="corpus">Universal Dependencies</entry>
 

@@ -6,7 +6,6 @@ package dga;
 import java.awt.BorderLayout;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.util.Locale;
 import java.util.ResourceBundle;
 import java.io.*;
 
@@ -33,7 +32,12 @@ public class Annotator extends JPanel {
   
   private JScrollPane scrollCanvas = null;
   private AnnotateCanvas annotateCanvas = null;
-   
+  
+  /**
+   * Corpus annotation scheme.
+   */
+  private String scheme = "UD";
+  
   /**
    * Sensitive deps
    */
@@ -73,7 +77,7 @@ public class Annotator extends JPanel {
   }
   
   /**
-   * This method initializes posList	
+   * This method initializes posList.	
    * 	
    * @return javax.swing.JList	
    */
@@ -116,24 +120,25 @@ public class Annotator extends JPanel {
   }
   
   /**
-   * This method initializes depsModel
+   * This method creates depsModel, from property file, according to a given corpus.	
    * 	
    * @return dga.ArrayListModel
    */
   private ArrayListModel<Tag> getDepsModel() {
-    if (depsModel == null)
-      getDepsModel(getLocale());
+    depsModel = new ArrayListModel<Tag>();
+    setDepsModel(scheme);
     return depsModel;
   }
-  
+
   /**
-   * This method creates depsModel, from property file, according to a given locale	
-   * 	
-   * @return dga.ArrayListModel
+   * Update dependency tags according to new @param scheme.
+   * @return
    */
-  private ArrayListModel<Tag> getDepsModel(Locale loc) {
-    depsModel = new ArrayListModel<Tag>();
-    ResourceBundle bundle = ResourceBundle.getBundle("dga.DGA", loc, new XMLResourceBundleControl());
+  private ArrayListModel<Tag> setDepsModel(String scheme) {
+    depsModel.clear();
+    // FIXME: XMLResourceBundleControl is needed here in the first call, while is not needed in setPosMoel
+    // which gets called later. Why?
+    ResourceBundle bundle = ResourceBundle.getBundle("dga.DGA_" + scheme, new XMLResourceBundleControl());
     if (bundle == null)
       bundle = ResourceBundle.getBundle("dga.DGA", new XMLResourceBundleControl());
     String deprels = bundle.getString("deprels");
@@ -152,19 +157,18 @@ public class Annotator extends JPanel {
    * @return dga.ArrayListModel
    */
   private ArrayListModel<Tag> getPosModel() {
-    if (posModel == null)
-      posModel = getPosModel(getLocale());
+    posModel = new ArrayListModel<Tag>();
+    setPosModel(scheme);
     return posModel;
   }
-  
+
   /**
-   * This method initializes posModel	
-   * 	
-   * @return dga.ArrayListModel
+   * Update POS tags according to new @param scheme.
+   * @return
    */
-  private ArrayListModel<Tag> getPosModel(Locale l) {
-    posModel = new ArrayListModel<Tag>();
-    ResourceBundle props = ResourceBundle.getBundle("dga.DGA", l);
+  private ArrayListModel<Tag> setPosModel(String scheme) {
+    posModel.clear();
+    ResourceBundle props = ResourceBundle.getBundle("dga.DGA_" + scheme);
     if (props == null)
       props = ResourceBundle.getBundle("dga.DGA");
     String deprels = props.getString("pos");
@@ -353,20 +357,23 @@ public class Annotator extends JPanel {
     this.add(getScrollCanvas(), java.awt.BorderLayout.CENTER);
   }
   
-  public void setLocale(Locale locale) {
-    if (!getLocale().equals(locale)) {
-      super.setLocale(locale);
-      // create depsModel
-      depsModel = getDepsModel(locale);
+  /**
+   * Change the corpus annotation schemes
+   * @param scheme
+   */
+  public void setScheme(String scheme) {
+    if (!scheme.equals(this.scheme)) {
+      // update depsModel
+      setDepsModel(scheme);
       depsList.setModel(depsModel);
       // create posModel
-      posModel = getPosModel(locale);
+      setPosModel(scheme);
       posList.setModel(posModel);
     }
   }
   
   /**
-   * Annotate sentence from corpus.
+   * Annotate sentence.
    * @param sentenceModel
    */
   public void sentence(SentenceView sentenceView) {
@@ -374,8 +381,8 @@ public class Annotator extends JPanel {
       annotateCanvas.clear();
       return;
     }
-    // get the locale from the sentence
-    setLocale(sentenceView.locale);
+    // set the scheme from the sentence
+    setScheme(sentenceView.scheme);
     annotateCanvas.annotate(sentenceView);
   }
   

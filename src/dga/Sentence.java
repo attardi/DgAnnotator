@@ -4,9 +4,10 @@
 package dga;
 
 import java.io.*;
-import java.net.*;
 import java.util.*;
-import java.util.Locale;
+
+import org.apache.http.*;
+import org.apache.http.client.methods.*;
 import org.w3c.dom.Node;
 
 /**
@@ -33,6 +34,7 @@ class SentenceTree {
   public int parents[];
   
   public String[] deps;	///< corresponding dependency type
+
 }
 
 /**
@@ -54,25 +56,23 @@ public class Sentence extends SentenceTree {
   public Vector<Node> extras;	///< extra XML elements
   public Node context = null;	///< the context, e.g. containing document
   
-  static final String defaultLanguage = "en";
-  static final String defaultTagger = "http://medialab.di.unipi.it/cgi-bin/tagger?";
-  static final String defaultEncoding = "UTF-8";
-  
-  Sentence(String s, Locale locale) {
-    ResourceBundle props = ResourceBundle.getBundle("dga.DGA", locale);
+  /**
+   * Build a tagged sentence.
+   * @param s the text of the sentence
+   * @param corpus name of the corpus scheme to be used for tagging
+   */
+  Sentence(String s, String corpus) {
+    ResourceBundle props = ResourceBundle.getBundle("dga.DGA_" + corpus);
     if (props == null)
       props = ResourceBundle.getBundle("dga.DGA");
-    String language = props.getString("language");
-    if (language == null) language = defaultLanguage;
+    //String language = props.getString("language");
     String tagger = props.getString("tagger");
-    if (tagger == null) tagger = defaultTagger;
-    String encoding = defaultEncoding;
-    try {
-      String enc = props.getString("encoding");
-      if (enc != null) encoding = enc;
-    } catch (MissingResourceException e) { }    
-    Vector<String> tagged = PosTags(s, language, tagger, encoding);
-    int n = tagged.size();
+    String authProvider = "DgAnnotator";
+    String authToken = ""; //props.getString("token");
+    String email = "";
+    Service service = new Service(tagger, authProvider, authToken, email);
+    Vector<String> tagged = PosTags(s, corpus, service);
+    int n = tagged.size() - 1; // drop sentence separator
     forms = new String[n];
     lemmas = new String[n];
     tags = new String[n];
@@ -83,9 +83,9 @@ public class Sentence extends SentenceTree {
       String token = tagged.elementAt(i);
       String[] parts = token.split("\t");
       forms[i] = parts[0];
-      lemmas[i] = parts.length > 2 ? parts[2] : "";
-      tags[i] = parts.length > 1 ? parts[1] : "_";
-      morphos[i] = "";
+      lemmas[i] = parts.length > 1 ? parts[1] : "";
+      tags[i] = parts.length > 2 ? parts[2] : "_";
+      morphos[i] = parts.length > 3 ? parts[3] : "";
       parents[i] = 0;
       deps[i] = "";
     }
@@ -216,37 +216,43 @@ public class Sentence extends SentenceTree {
   /**
    * Invoke POS tagger service to tag sentence
    * 
-   * @param s
+   * @param text
    *            the sentence to be tagged.
-   * @param lang
-   *            the language of the sentence.
+   * @param corpus
+   *            the treebank to use for annotating the sentence.
    * @return a vector of strings, one per word in the sentence, in the format:
    *         Word\tPOS\tLemma. Returns an empty vector is tagging failed.
    */
-  Vector<String> PosTags(String s, String lang, String tagger, String encoding) {
-    Vector<String> res = new Vector<String>();
+  Vector<String> PosTags(String text, String corpus, Service service) {
+    Vector<String> res = null;
     try {
-      // Construct params
-      String params = "p=" + HtmlEncoder.encode(s) +
-      "&lang=" + HtmlEncoder.encode(lang);
-      
-      // Send request
-      URL url = new URL(tagger + params);
-      URLConnection conn = url.openConnection();
-      // ((HttpURLConnection)conn).setRequestProperty("Content-Type",
-      // "application/x-www-form-urlencoded; charset=ISO-8859-1");
-      
-      // Get the response
-      BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-      String line;
-      while ((line = rd.readLine()) != null) {
-	res.add(line);
+      String[] params = {"service", "pos",
+	  "format", "plain",
+	  "text", text};
+      // submit request
+      CloseableHttpResponse response = service.post(params);
+      if (response.getStatusLine().getStatusCode() == 200) {
+	// read response
+	HttpEntity entity = response.getEntity();
+	InputStream is = entity.getContent();
+	BufferedReader rd = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+	String line;
+	res = new Vector<String>();
+	while ((line = rd.readLine()) != null)
+	  res.add(line);
+	rd.close();
+      	}
+      response.close();
+      } catch (Exception e) {
+	res = null;
+    } finally {
+      if (res == null) {
+	// failed connection, return just tokenized sentence
+	res = new Vector<String>();
+	for (String token : text.split(" "))
+	  res.add(token);
+	res.add(""); // sentence separator
       }
-      rd.close();
-    } catch (Exception e) {
-      // failed connection, return just tokenized sentence
-      for (String token : s.split(" "))
-	res.add(token);
     }
     return res;
   }
